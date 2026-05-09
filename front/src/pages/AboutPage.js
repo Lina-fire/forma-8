@@ -3,6 +3,8 @@ import { useTheme } from '../context/ThemeContext';
 import ArrayDisplay from '../components/ArrayDisplay';
 import CounterWithEffect from '../components/CounterWithEffect';
 import CartTracker from '../components/CartTracker';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import '../components/animations.css';
 
 function AboutPage() {
   const { theme } = useTheme();
@@ -46,9 +48,29 @@ function AboutPage() {
       </div>
 
       <div style={sectionStyle}>
-        <h2 style={titleStyle}>Примеры нашей продукции</h2>
-        <ArrayDisplay products={productsArray} />
-      </div>
+  <h2 style={titleStyle}>Примеры нашей продукции</h2>
+  <TransitionGroup>
+    {productsArray.map((product, index) => (
+      <CSSTransition
+        key={product.id}
+        timeout={300}
+        classNames="fade"
+      >
+        <div style={{
+          padding: '10px',
+          marginBottom: '10px',
+          background: theme === 'light' ? '#f5f5f5' : '#3d3d3d',
+          borderRadius: '8px',
+          transitionDelay: `${index * 100}ms`
+        }}>
+          <strong>{product.name}</strong> - {product.price} ₽
+          <br />
+          <small>Размер: {product.size}, цвет: {product.color}</small>
+        </div>
+      </CSSTransition>
+    ))}
+  </TransitionGroup>
+</div>
 
       <div style={sectionStyle}>
         <h2 style={titleStyle}>Демонстрация работы React</h2>

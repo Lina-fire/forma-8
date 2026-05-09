@@ -22,7 +22,12 @@ export const removeFromFavorites = createAsyncThunk('favorites/remove', async (p
 const favoritesSlice = createSlice({
   name: 'favorites',
   initialState: { items: [], loading: false },
-  reducers: {},
+  reducers: {
+    clearFavoritesState: (state) => {
+      state.items = [];
+      state.loading = false;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchFavorites.pending, (state) => { state.loading = true; })
@@ -38,4 +43,5 @@ const favoritesSlice = createSlice({
   }
 });
 
+export const { clearFavoritesState } = favoritesSlice.actions;
 export default favoritesSlice.reducer;

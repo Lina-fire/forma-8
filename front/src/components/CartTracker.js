@@ -1,27 +1,40 @@
 import React, { useState, useEffect } from 'react';
+import { fadeInDown, bounce, pulse } from 'react-animations';
+import { StyleSheet, css } from 'aphrodite';
+
+const styles = StyleSheet.create({
+  fadeIn: {
+    animationName: fadeInDown,
+    animationDuration: '0.5s',
+  },
+  bounce: {
+    animationName: bounce,
+    animationDuration: '0.5s',
+  },
+  pulse: {
+    animationName: pulse,
+    animationDuration: '0.3s',
+  }
+});
 
 function CartTracker() {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
+  const [animateAdd, setAnimateAdd] = useState(false);
 
-  // Эффект для подсчёта общей суммы при изменении корзины
   useEffect(() => {
     const newTotal = cart.reduce((sum, item) => sum + item.price, 0);
     setTotal(newTotal);
-    
-    // Сохраняем корзину в localStorage
     localStorage.setItem('cart', JSON.stringify(cart));
-    
     console.log('Корзина обновлена:', cart);
   }, [cart]);
 
-  // Эффект для загрузки корзины из localStorage при монтировании
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       setCart(JSON.parse(savedCart));
     }
-  }, []); // Пустой массив = выполнить только один раз при монтировании
+  }, []);
 
   const products = [
     { id: 1, name: 'Костюм "КАРАТ"', price: 1300 },
@@ -33,6 +46,8 @@ function CartTracker() {
 
   const addToCart = (product) => {
     setCart([...cart, { ...product, cartId: Date.now() }]);
+    setAnimateAdd(true);
+    setTimeout(() => setAnimateAdd(false), 300);
   };
 
   const removeFromCart = (cartId) => {
@@ -51,12 +66,12 @@ function CartTracker() {
       </h3>
       
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-        {/* Список товаров */}
         <div>
           <h4 style={{ marginBottom: '15px' }}>Товары:</h4>
           {products.map(product => (
             <div
               key={product.id}
+              className={animateAdd ? css(styles.pulse) : ''}
               style={{
                 padding: '10px',
                 marginBottom: '10px',
@@ -89,8 +104,7 @@ function CartTracker() {
           ))}
         </div>
         
-        {/* Корзина */}
-        <div>
+        <div className={cart.length > 0 ? css(styles.bounce) : ''}>
           <h4 style={{ marginBottom: '15px' }}>
             Корзина: <span style={{ color: '#d94a2c' }}>{cart.length}</span>
           </h4>
@@ -103,6 +117,7 @@ function CartTracker() {
               {cart.map(item => (
                 <div
                   key={item.cartId}
+                  className={css(styles.fadeIn)}
                   style={{
                     padding: '10px',
                     marginBottom: '10px',

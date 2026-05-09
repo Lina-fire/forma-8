@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useTheme } from '../context/ThemeContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { CSSTransition } from 'react-transition-group';
+import '../components/animations.css';
 import {
   TextField as MuiTextField,
   Button as MuiButton,
@@ -60,7 +62,7 @@ function AddProductForm({ onProductAdded }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Валидация
     if (!formData.name.trim()) {
       alert('Введите название товара');
@@ -558,7 +560,16 @@ function AddProductForm({ onProductAdded }) {
           Material-UI форма
         </button>
       </div>
-      {formLibrary === 'bootstrap' ? <BootstrapForm /> : <MaterialForm />}
+      <CSSTransition
+        in={true}
+        timeout={300}
+        classNames="fade"
+        appear={true}
+      >
+        <div>
+          {formLibrary === 'bootstrap' ? <BootstrapForm /> : <MaterialForm />}
+        </div>
+      </CSSTransition>
     </div>
   );
 }

@@ -19,10 +19,26 @@ export const removeFromCart = createAsyncThunk('cart/remove', async (product_id)
   return product_id;
 });
 
+export const updateCartQuantity = createAsyncThunk('cart/update', async ({ product_id, quantity }) => {
+  await axios.put(`${API}/cart/update/${product_id}`, { quantity }, getToken());
+  return { product_id, quantity };
+});
+
+export const clearCart = createAsyncThunk('cart/clear', async () => {
+  await axios.delete(`${API}/cart/clear`, getToken());
+  return;
+});
+
 const cartSlice = createSlice({
   name: 'cart',
   initialState: { items: [], loading: false },
-  reducers: {},
+  reducers: {
+    // Синхронный редьюсер для очистки корзины (для logout)
+    clearCartState: (state) => {
+      state.items = [];
+      state.loading = false;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCart.pending, (state) => { state.loading = true; })
@@ -34,8 +50,19 @@ const cartSlice = createSlice({
       .addCase(addToCart.fulfilled, (state, action) => {})
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.items = state.items.filter(item => item.product_id !== action.payload);
+      })
+      .addCase(updateCartQuantity.fulfilled, (state, action) => {
+        const { product_id, quantity } = action.payload;
+        const item = state.items.find(item => item.product_id === product_id);
+        if (item) {
+          item.quantity = quantity;
+        }
+      })
+      .addCase(clearCart.fulfilled, (state) => {
+        state.items = [];
       });
   }
 });
 
+export const { clearCartState } = cartSlice.actions;
 export default cartSlice.reducer;

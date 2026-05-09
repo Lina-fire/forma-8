@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../store/slices/authSlice';
 
 export default function LoginPage() {
-  const [form, setForm] = useState({ username: 'admin@forma8.ru', password: '' });
+  const [form, setForm] = useState({ username: '', password: '' });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector(state => state.auth);
@@ -19,38 +19,44 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: 'calc(100vh - 60px)',  // ← уменьшаем высоту
+      minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '20px'
+      padding: '40px 20px',
+      background: 'linear-gradient(135deg, #f5f0eb 0%, #e8e0d8 100%)'
     }}>
       <div style={{
         background: 'white',
-        borderRadius: '16px',
-        padding: '30px',  // ← уменьшаем padding
+        borderRadius: '20px',
+        padding: '40px',
         width: '100%',
-        maxWidth: '400px',  // ← уменьшаем ширину
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        borderTop: '4px solid #d94a2c'
+        maxWidth: '450px',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+        borderTop: '4px solid #c41e3a'
       }}>
-        <h2 style={{
-          color: '#1a4b6d',
-          fontSize: '1.5rem',
-          marginBottom: '20px',
-          textAlign: 'center'
-        }}>
-          Вход в личный кабинет
-        </h2>
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <img 
+            src="/logo.png" 
+            alt="Форма №8" 
+            style={{ height: '60px', marginBottom: '15px' }}
+          />
+          <h2 style={{ color: '#1a1a1a', fontSize: '1.8rem', marginBottom: '8px' }}>
+            Добро пожаловать
+          </h2>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            Войдите в свой аккаунт
+          </p>
+        </div>
 
         {error && (
           <div style={{
             background: '#f8d7da',
             color: '#721c24',
-            padding: '8px',
-            borderRadius: '6px',
-            marginBottom: '15px',
-            fontSize: '13px',
+            padding: '12px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            fontSize: '14px',
             textAlign: 'center'
           }}>
             {error}
@@ -58,8 +64,8 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: '#333', fontSize: '13px' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500', fontSize: '14px' }}>
               Email или имя пользователя
             </label>
             <input
@@ -69,15 +75,19 @@ export default function LoginPage() {
               required
               style={{
                 width: '100%',
-                padding: '10px',
-                borderRadius: '6px',
-                border: '1px solid #ddd',
-                fontSize: '14px'
+                padding: '14px',
+                borderRadius: '10px',
+                border: '1px solid #e0e0e0',
+                fontSize: '16px',
+                transition: 'all 0.3s',
+                outline: 'none'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#c41e3a'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: '#333', fontSize: '13px' }}>
+          <div style={{ marginBottom: '25px' }}>
+            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500', fontSize: '14px' }}>
               Пароль
             </label>
             <input
@@ -87,11 +97,15 @@ export default function LoginPage() {
               required
               style={{
                 width: '100%',
-                padding: '10px',
-                borderRadius: '6px',
-                border: '1px solid #ddd',
-                fontSize: '14px'
+                padding: '14px',
+                borderRadius: '10px',
+                border: '1px solid #e0e0e0',
+                fontSize: '16px',
+                transition: 'all 0.3s',
+                outline: 'none'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#c41e3a'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
           <button
@@ -99,22 +113,31 @@ export default function LoginPage() {
             disabled={loading}
             style={{
               width: '100%',
-              padding: '10px',
-              background: '#d94a2c',
+              padding: '14px',
+              background: '#c41e3a',
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
+              borderRadius: '10px',
+              fontSize: '16px',
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.3s'
             }}
+            onMouseEnter={(e) => e.target.style.background = '#a01830'}
+            onMouseLeave={(e) => e.target.style.background = '#c41e3a'}
           >
             {loading ? 'Вход...' : 'Войти'}
           </button>
         </form>
-        <p style={{ textAlign: 'center', marginTop: '15px', color: '#666', fontSize: '13px' }}>
-          Нет аккаунта? <Link to="/register" style={{ color: '#d94a2c' }}>Зарегистрироваться</Link>
-        </p>
+        
+        <div style={{ marginTop: '25px', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            Нет аккаунта?{' '}
+            <Link to="/register" style={{ color: '#c41e3a', textDecoration: 'none', fontWeight: '500' }}>
+              Зарегистрироваться
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

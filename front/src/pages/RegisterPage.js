@@ -24,12 +24,12 @@ export default function RegisterPage() {
 
   return (
     <div style={{
-      minHeight: 'calc(100vh - 200px)',
-      background: '#f5f0eb',
+      minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '40px 20px'
+      padding: '40px 20px',
+      background: 'linear-gradient(135deg, #f5f0eb 0%, #e8e0d8 100%)'
     }}>
       <div style={{
         background: 'white',
@@ -40,25 +40,28 @@ export default function RegisterPage() {
         boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
         borderTop: '4px solid #c41e3a'
       }}>
-        <h1 style={{
-          color: '#1a1a1a',
-          fontSize: '1.8rem',
-          marginBottom: '10px',
-          textAlign: 'center'
-        }}>
-          Регистрация
-        </h1>
-        <p style={{ color: '#666', textAlign: 'center', marginBottom: '30px' }}>
-          Создайте новый аккаунт
-        </p>
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <img 
+            src="/logo.png" 
+            alt="Форма №8" 
+            style={{ height: '60px', marginBottom: '15px' }}
+          />
+          <h2 style={{ color: '#1a1a1a', fontSize: '1.8rem', marginBottom: '8px' }}>
+            Регистрация
+          </h2>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            Создайте новый аккаунт
+          </p>
+        </div>
 
         {error && (
           <div style={{
             background: '#f8d7da',
             color: '#721c24',
-            padding: '10px',
+            padding: '12px',
             borderRadius: '8px',
             marginBottom: '20px',
+            fontSize: '14px',
             textAlign: 'center'
           }}>
             {error}
@@ -67,7 +70,7 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500' }}>
+            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500', fontSize: '14px' }}>
               Имя пользователя *
             </label>
             <input
@@ -77,15 +80,19 @@ export default function RegisterPage() {
               required
               style={{
                 width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid #ddd',
-                fontSize: '16px'
+                padding: '14px',
+                borderRadius: '10px',
+                border: '1px solid #e0e0e0',
+                fontSize: '16px',
+                transition: 'all 0.3s',
+                outline: 'none'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#c41e3a'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
           <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500' }}>
+            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500', fontSize: '14px' }}>
               Email *
             </label>
             <input
@@ -95,15 +102,19 @@ export default function RegisterPage() {
               required
               style={{
                 width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid #ddd',
-                fontSize: '16px'
+                padding: '14px',
+                borderRadius: '10px',
+                border: '1px solid #e0e0e0',
+                fontSize: '16px',
+                transition: 'all 0.3s',
+                outline: 'none'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#c41e3a'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
           <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500' }}>
+            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500', fontSize: '14px' }}>
               Телефон
             </label>
             <input
@@ -112,15 +123,19 @@ export default function RegisterPage() {
               onChange={e => setForm({ ...form, phone: e.target.value })}
               style={{
                 width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid #ddd',
-                fontSize: '16px'
+                padding: '14px',
+                borderRadius: '10px',
+                border: '1px solid #e0e0e0',
+                fontSize: '16px',
+                transition: 'all 0.3s',
+                outline: 'none'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#c41e3a'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
           <div style={{ marginBottom: '25px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500' }}>
+            <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500', fontSize: '14px' }}>
               Пароль *
             </label>
             <input
@@ -130,11 +145,15 @@ export default function RegisterPage() {
               required
               style={{
                 width: '100%',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid #ddd',
-                fontSize: '16px'
+                padding: '14px',
+                borderRadius: '10px',
+                border: '1px solid #e0e0e0',
+                fontSize: '16px',
+                transition: 'all 0.3s',
+                outline: 'none'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#c41e3a'}
+              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
           <button
@@ -142,22 +161,31 @@ export default function RegisterPage() {
             disabled={loading}
             style={{
               width: '100%',
-              padding: '12px',
+              padding: '14px',
               background: '#c41e3a',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '10px',
               fontSize: '16px',
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.3s'
             }}
+            onMouseEnter={(e) => e.target.style.background = '#a01830'}
+            onMouseLeave={(e) => e.target.style.background = '#c41e3a'}
           >
             {loading ? 'Регистрация...' : 'Зарегистрироваться'}
           </button>
         </form>
-        <p style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
-          Уже есть аккаунт? <Link to="/login" style={{ color: '#c41e3a' }}>Войти</Link>
-        </p>
+        
+        <div style={{ marginTop: '25px', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+          <p style={{ color: '#666', fontSize: '14px' }}>
+            Уже есть аккаунт?{' '}
+            <Link to="/login" style={{ color: '#c41e3a', textDecoration: 'none', fontWeight: '500' }}>
+              Войти
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

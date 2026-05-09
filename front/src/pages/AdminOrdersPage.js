@@ -5,6 +5,7 @@ const API = 'http://localhost:8080/api';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
+  const [updatingId, setUpdatingId] = useState(null);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -23,14 +24,17 @@ export default function AdminOrdersPage() {
   };
 
   const updateStatus = async (orderId, status) => {
+    setUpdatingId(orderId);
     try {
       await axios.put(`${API}/orders/${orderId}/status`, { status }, {
         headers: { 'x-access-token': token }
       });
-      fetchOrders();
-      alert('Статус обновлён');
+      await fetchOrders();
+      alert('Статус обновлён, уведомление отправлено клиенту на почту');
     } catch (error) {
       alert('Ошибка обновления статуса');
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -62,6 +66,7 @@ export default function AdminOrdersPage() {
               <select 
                 value={order.status} 
                 onChange={(e) => updateStatus(order.id, e.target.value)}
+                disabled={updatingId === order.id}
                 style={{
                   padding: '8px 12px',
                   borderRadius: '6px',
@@ -70,12 +75,15 @@ export default function AdminOrdersPage() {
                   cursor: 'pointer'
                 }}
               >
-                <option value="новый">Новый</option>
-                <option value="в обработке">В обработке</option>
-                <option value="отправлен">Отправлен</option>
-                <option value="доставлен">Доставлен</option>
-                <option value="отменен">Отменен</option>
+                <option value="новый">🟡 Новый</option>
+                <option value="в обработке">🟠 В обработке</option>
+                <option value="отправлен">🔵 Отправлен</option>
+                <option value="доставлен">🟢 Доставлен</option>
+                <option value="отменен">🔴 Отменен</option>
               </select>
+              {updatingId === order.id && (
+                <p style={{ fontSize: '12px', color: '#888', marginTop: '8px' }}>Отправка уведомления...</p>
+              )}
             </div>
           </div>
         </div>
@@ -85,4 +93,4 @@ export default function AdminOrdersPage() {
       )}
     </div>
   );
-} 
+}

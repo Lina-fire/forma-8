@@ -35,13 +35,13 @@ export default function Navbar() {
         flexWrap: 'wrap',
         gap: '15px'
       }}>
-        <Link to="/catalog" style={{
+        <Link to="/" style={{
           display: 'flex',
           alignItems: 'center',
           textDecoration: 'none'
         }}>
           <img
-            src="/logo.png"
+            src="/images/logo.png"
             alt="Форма №8"
             style={{
               height: '45px',
@@ -50,11 +50,14 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* Основные ссылки - чёрные */}
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+          <Link to="/" style={{ color: '#1a1a1a', textDecoration: 'none', padding: '8px 12px', fontWeight: '500' }}>
+            Главная
+          </Link>
           <Link to="/catalog" style={{ color: '#1a1a1a', textDecoration: 'none', padding: '8px 12px', fontWeight: '500' }}>
             Каталог
           </Link>
+          {/* Ссылка на AnimationsPage удалена */}
           {user && (
             <>
               <Link to="/cart" style={{ color: '#1a1a1a', textDecoration: 'none', padding: '8px 12px', fontWeight: '500' }}>
@@ -70,7 +73,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Админ панель */}
         {isAdmin && (
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <span style={{ color: '#c41e3a', fontSize: '12px', alignSelf: 'center' }}>🔧 Админ</span>
@@ -86,11 +88,17 @@ export default function Navbar() {
           </div>
         )}
 
-        {/* Пользователь и кнопка выхода */}
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           {user ? (
             <>
-              <span style={{ color: '#c41e3a', fontWeight: '500' }}>👤 {user.username}</span>
+              <Link to="/profile" style={{ color: '#1a1a1a', textDecoration: 'none', fontWeight: '500', marginRight: '15px' }}>
+                👤 Личный кабинет
+              </Link>
+
+              <Link to="/admin/products" style={{ color: '#1a1a1a', textDecoration: 'none', padding: '8px 12px', fontSize: '14px', fontWeight: '500' }}>
+                Товары
+              </Link>
+              <span style={{ color: '#c41e3a', fontWeight: '500' }}>{user.username}</span>
               <button
                 onClick={handleLogout}
                 style={{
