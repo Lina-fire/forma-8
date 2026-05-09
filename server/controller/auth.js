@@ -1,7 +1,9 @@
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const config = require('../config/auth.config');
+require('dotenv').config();
+
+const JWT_SECRET = process.env.JWT_SECRET || 'forma8-secret-key-2025';
 
 exports.register = async (req, res) => {
   try {
@@ -34,7 +36,7 @@ exports.register = async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, role: user.role }, 
-      config.secret, 
+      JWT_SECRET, 
       { expiresIn: '24h' }
     );
     
@@ -79,7 +81,7 @@ exports.login = async (req, res) => {
 
     const token = jwt.sign(
       { id: user.id, role: user.role },
-      config.secret,
+      JWT_SECRET,
       { expiresIn: '24h' }
     );
 

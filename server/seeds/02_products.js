@@ -86,4 +86,5 @@ exports.seed = async function(knex) {
       image_url: null
     }
   ]);
+  console.log('✅ Товары добавлены');
 };
