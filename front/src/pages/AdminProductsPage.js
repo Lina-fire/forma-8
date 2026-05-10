@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 
 const API = 'http://localhost:8080/api';
 
@@ -15,14 +18,12 @@ export default function AdminProductsPage() {
   const [deletingId, setDeletingId] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
-  // Проверка прав администратора
   useEffect(() => {
     if (user?.role !== 'admin') {
       navigate('/catalog');
     }
   }, [user, navigate]);
 
-  // Загрузка всех товаров
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -89,7 +90,8 @@ export default function AdminProductsPage() {
           color: '#1a1a1a',
           borderLeft: '4px solid #c41e3a',
           paddingLeft: '15px',
-          margin: 0
+          margin: 0,
+          fontSize: '1.8rem'
         }}>
           Управление товарами
         </h1>
@@ -97,7 +99,7 @@ export default function AdminProductsPage() {
           onClick={() => navigate('/admin/products/add')}
           style={{
             padding: '12px 24px',
-            background: '#28a745',
+            background: '#1a1a1a',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
@@ -105,12 +107,13 @@ export default function AdminProductsPage() {
             fontWeight: 'bold',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            transition: 'all 0.3s'
           }}
-          onMouseEnter={(e) => e.target.style.background = '#218838'}
-          onMouseLeave={(e) => e.target.style.background = '#28a745'}
+          onMouseEnter={(e) => e.target.style.background = '#c41e3a'}
+          onMouseLeave={(e) => e.target.style.background = '#1a1a1a'}
         >
-          ➕ Добавить товар
+          <AddIcon /> Добавить товар
         </button>
       </div>
 
@@ -147,7 +150,7 @@ export default function AdminProductsPage() {
             width: '100%',
             borderCollapse: 'collapse'
           }}>
-            <thead style={{ background: '#f8f9fa' }}>
+            <thead style={{ background: '#f8f9fa', borderBottom: '2px solid #e0e0e0' }}>
               <tr>
                 <th style={{ padding: '15px', textAlign: 'left' }}>ID</th>
                 <th style={{ padding: '15px', textAlign: 'left' }}>Изображение</th>
@@ -207,8 +210,8 @@ export default function AdminProductsPage() {
                       display: 'inline-block',
                       padding: '4px 8px',
                       borderRadius: '4px',
-                      background: product.stock_quantity > 0 ? '#d4edda' : '#f8d7da',
-                      color: product.stock_quantity > 0 ? '#155724' : '#721c24',
+                      background: product.stock_quantity > 0 ? '#e8f5e9' : '#ffebee',
+                      color: product.stock_quantity > 0 ? '#2e7d32' : '#c62828',
                       fontSize: '12px'
                     }}>
                       {product.stock_quantity} шт.
@@ -216,37 +219,59 @@ export default function AdminProductsPage() {
                   </td>
                   <td style={{ padding: '15px' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                      {/* Кнопка РЕДАКТИРОВАТЬ - серая */}
                       <button
                         onClick={() => navigate(`/admin/products/edit/${product.id}`)}
                         style={{
-                          padding: '6px 12px',
-                          background: '#ffc107',
-                          color: '#1a1a1a',
-                          border: 'none',
+                          padding: '8px 16px',
+                          background: '#f5f5f5',
+                          color: '#333',
+                          border: '1px solid #ddd',
                           borderRadius: '6px',
                           cursor: 'pointer',
-                          fontSize: '13px'
+                          fontSize: '13px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => e.target.style.background = '#e0a800'}
-                        onMouseLeave={(e) => e.target.style.background = '#ffc107'}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = '#e0e0e0';
+                          e.target.style.borderColor = '#c41e3a';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = '#f5f5f5';
+                          e.target.style.borderColor = '#ddd';
+                        }}
                       >
-                        ✏️ Редактировать
+                        <EditIcon style={{ fontSize: '16px' }} /> Редактировать
                       </button>
+                      {/* Кнопка УДАЛИТЬ - красная рамка, белый фон */}
                       <button
                         onClick={() => setShowDeleteConfirm(product.id)}
                         style={{
-                          padding: '6px 12px',
-                          background: '#dc3545',
-                          color: 'white',
-                          border: 'none',
+                          padding: '8px 16px',
+                          background: '#fff',
+                          color: '#c41e3a',
+                          border: '1px solid #c41e3a',
                           borderRadius: '6px',
                           cursor: 'pointer',
-                          fontSize: '13px'
+                          fontSize: '13px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => e.target.style.background = '#bb2d3b'}
-                        onMouseLeave={(e) => e.target.style.background = '#dc3545'}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = '#c41e3a';
+                          e.target.style.color = 'white';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = '#fff';
+                          e.target.style.color = '#c41e3a';
+                        }}
                       >
-                        🗑️ Удалить
+                        <DeleteIcon style={{ fontSize: '16px' }} /> Удалить
                       </button>
                     </div>
                   </td>
@@ -279,7 +304,7 @@ export default function AdminProductsPage() {
             width: '90%',
             textAlign: 'center'
           }}>
-            <h3 style={{ marginBottom: '15px', color: '#dc3545' }}>Подтверждение удаления</h3>
+            <h3 style={{ marginBottom: '15px', color: '#c41e3a' }}>Подтверждение удаления</h3>
             <p style={{ marginBottom: '25px', color: '#666' }}>
               Вы уверены, что хотите удалить этот товар?<br />
               Это действие нельзя отменить.
@@ -290,12 +315,14 @@ export default function AdminProductsPage() {
                 style={{
                   flex: 1,
                   padding: '10px',
-                  background: '#6c757d',
-                  color: 'white',
-                  border: 'none',
+                  background: '#f5f5f5',
+                  color: '#333',
+                  border: '1px solid #ddd',
                   borderRadius: '8px',
                   cursor: 'pointer'
                 }}
+                onMouseEnter={(e) => e.target.style.background = '#e0e0e0'}
+                onMouseLeave={(e) => e.target.style.background = '#f5f5f5'}
               >
                 Отмена
               </button>
@@ -305,11 +332,17 @@ export default function AdminProductsPage() {
                 style={{
                   flex: 1,
                   padding: '10px',
-                  background: '#dc3545',
+                  background: '#c41e3a',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   cursor: deletingId === showDeleteConfirm ? 'not-allowed' : 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  if (!deletingId) e.target.style.background = '#a01830';
+                }}
+                onMouseLeave={(e) => {
+                  if (!deletingId) e.target.style.background = '#c41e3a';
                 }}
               >
                 {deletingId === showDeleteConfirm ? 'Удаление...' : 'Да, удалить'}

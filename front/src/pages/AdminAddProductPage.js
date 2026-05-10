@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
 
 const API = 'http://localhost:8080/api';
 
@@ -22,6 +24,7 @@ export default function AdminAddProductPage() {
     category_id: ''
   });
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -51,55 +54,63 @@ export default function AdminAddProductPage() {
       ...form,
       [e.target.name]: e.target.value
     });
+    // Очищаем ошибку при вводе
+    if (error) setError(null);
   };
 
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
-      setImage(e.target.files[0]);
+      const file = e.target.files[0];
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  const data = new FormData();
-  data.append('name', form.name || '');
-  data.append('description', form.description || '');
-  data.append('price', form.price || '0');
-  data.append('size', form.size || '');
-  data.append('color', form.color || '');
-  data.append('material', form.material || '');
-  // Важно: отправляем 0 вместо пустой строки
-  data.append('stock_quantity', form.stock_quantity === '' ? '0' : form.stock_quantity);
-  data.append('category_id', form.category_id === '' ? '' : form.category_id);
-  if (image) data.append('image', image);
-  
-  try {
-    await axios.post(`${API}/products/add`, data, {
-      headers: { 
-        'x-access-token': token,
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    alert('Товар успешно добавлен!');
-    setForm({
-      name: '',
-      description: '',
-      price: '',
-      size: '',
-      color: '',
-      material: '',
-      stock_quantity: '',
-      category_id: ''
-    });
-    setImage(null);
-  } catch (error) {
-    alert('Ошибка добавления товара');
-  } finally {
-    setLoading(false);
-  }
-};
-
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    
+    // Валидация цены
+    const priceValue = parseFloat(form.price);
+    if (isNaN(priceValue) || priceValue <= 100) {
+      setError('Цена товара должна быть больше 100 ₽');
+      setLoading(false);
+      return;
+    }
+    
+    const data = new FormData();
+    data.append('name', form.name || '');
+    data.append('description', form.description || '');
+    data.append('price', form.price || '0');
+    data.append('size', form.size || '');
+    data.append('color', form.color || '');
+    data.append('material', form.material || '');
+    data.append('stock_quantity', form.stock_quantity === '' ? '0' : form.stock_quantity);
+    data.append('category_id', form.category_id === '' ? '' : form.category_id);
+    if (image) data.append('image', image);
+    
+    try {
+      await axios.post(`${API}/products/add`, data, {
+        headers: { 
+          'x-access-token': token,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setSuccess('Товар успешно добавлен!');
+      setTimeout(() => {
+        navigate('/admin/products');
+      }, 1500);
+    } catch (error) {
+      setError(error.response?.data?.error || 'Ошибка добавления товара');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div style={{
@@ -114,15 +125,31 @@ export default function AdminAddProductPage() {
         padding: '30px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
       }}>
-        <h1 style={{
-          color: '#1a1a1a',
-          fontSize: '1.8rem',
-          borderLeft: '4px solid #c41e3a',
-          paddingLeft: '15px',
-          marginBottom: '25px'
-        }}>
-          Добавление нового товара
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '25px' }}>
+          <button
+            onClick={() => navigate('/admin/products')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              marginRight: '15px',
+              display: 'flex',
+              alignItems: 'center',
+              color: '#666'
+            }}
+          >
+            <ArrowBackIcon />
+          </button>
+          <h1 style={{
+            color: '#1a1a1a',
+            fontSize: '1.8rem',
+            borderLeft: '4px solid #c41e3a',
+            paddingLeft: '15px',
+            margin: 0
+          }}>
+            Добавление нового товара
+          </h1>
+        </div>
 
         {success && (
           <div style={{
@@ -166,8 +193,11 @@ export default function AdminAddProductPage() {
                 padding: '12px',
                 borderRadius: '8px',
                 border: '1px solid #ddd',
-                fontSize: '16px'
+                fontSize: '16px',
+                transition: 'border 0.3s'
               }}
+              onFocus={(e) => e.target.style.borderColor = '#c41e3a'}
+              onBlur={(e) => e.target.style.borderColor = '#ddd'}
             />
           </div>
 
@@ -184,7 +214,8 @@ export default function AdminAddProductPage() {
                 padding: '12px',
                 borderRadius: '8px',
                 border: '1px solid #ddd',
-                fontSize: '16px'
+                fontSize: '16px',
+                background: 'white'
               }}
             >
               <option value="">Выберите категорию</option>
@@ -217,7 +248,7 @@ export default function AdminAddProductPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500' }}>
-                Цена * (₽)
+                Цена * (₽) (больше 100)
               </label>
               <input
                 type="number"
@@ -226,7 +257,7 @@ export default function AdminAddProductPage() {
                 onChange={handleChange}
                 required
                 step="0.01"
-                min="0"
+                min="101"
                 style={{
                   width: '100%',
                   padding: '12px',
@@ -333,10 +364,10 @@ export default function AdminAddProductPage() {
             <small style={{ color: '#888', display: 'block', marginTop: '5px' }}>
               Поддерживаемые форматы: JPEG, PNG, GIF. Максимум 5MB
             </small>
-            {image && (
+            {imagePreview && (
               <div style={{ marginTop: '10px' }}>
                 <img
-                  src={URL.createObjectURL(image)}
+                  src={imagePreview}
                   alt="Предпросмотр"
                   style={{
                     maxWidth: '150px',
@@ -356,16 +387,23 @@ export default function AdminAddProductPage() {
               style={{
                 flex: 1,
                 padding: '12px',
-                background: '#6c757d',
-                color: 'white',
-                border: 'none',
+                background: '#f5f5f5',
+                color: '#333',
+                border: '1px solid #ddd',
                 borderRadius: '8px',
                 fontSize: '16px',
                 fontWeight: 'bold',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s'
               }}
-              onMouseEnter={(e) => e.target.style.background = '#5a6268'}
-              onMouseLeave={(e) => e.target.style.background = '#6c757d'}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#e0e0e0';
+                e.target.style.borderColor = '#c41e3a';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#f5f5f5';
+                e.target.style.borderColor = '#ddd';
+              }}
             >
               Отмена
             </button>
@@ -375,22 +413,27 @@ export default function AdminAddProductPage() {
               style={{
                 flex: 1,
                 padding: '12px',
-                background: '#c41e3a',
+                background: '#1a1a1a',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '16px',
                 fontWeight: 'bold',
-                cursor: loading ? 'not-allowed' : 'pointer'
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
               }}
               onMouseEnter={(e) => {
-                if (!loading) e.target.style.background = '#a01830';
-              }}
-              onMouseLeave={(e) => {
                 if (!loading) e.target.style.background = '#c41e3a';
               }}
+              onMouseLeave={(e) => {
+                if (!loading) e.target.style.background = '#1a1a1a';
+              }}
             >
-              {loading ? 'Добавление...' : 'Добавить товар'}
+              {loading ? 'Добавление...' : <><AddIcon /> Добавить товар</>}
             </button>
           </div>
         </form>

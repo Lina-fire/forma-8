@@ -57,34 +57,6 @@ export default function AccessibilityWidget() {
         {announcement}
       </div>
 
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Открыть настройки доступности"
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          left: '20px',
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          background: highContrast ? '#000' : '#c41e3a',
-          color: 'white',
-          border: highContrast ? '2px solid #fff' : 'none',
-          cursor: 'pointer',
-          fontSize: '24px',
-          zIndex: 1000,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: reduceMotion ? 'none' : 'all 0.3s',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
-        }}
-      >
-        ♿
-      </button>
-
       {isOpen && (
         <div
           role="dialog"
@@ -92,29 +64,30 @@ export default function AccessibilityWidget() {
           aria-modal="true"
           style={{
             position: 'fixed',
-            bottom: '80px',
-            left: '20px',
+            top: '70px',
+            right: '20px',
             width: '280px',
-            background: highContrast ? '#000' : '#fff',
+            background: highContrast ? '#000000' : '#ffffff',
             borderRadius: '12px',
-            padding: '16px',
+            padding: '20px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
             zIndex: 999,
-            border: highContrast ? '2px solid #fff' : '1px solid #eee',
-            color: highContrast ? '#fff' : '#333'
+            border: highContrast ? '3px solid #ffffff' : '1px solid #e0e0e0',
+            color: highContrast ? '#ffffff' : '#333333'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0, fontSize: '1rem' }}>Настройки доступности</h3>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 'bold' }}>Настройки доступности</h3>
             <button
               onClick={() => setIsOpen(false)}
               aria-label="Закрыть"
               style={{
                 background: 'none',
                 border: 'none',
-                fontSize: '20px',
+                fontSize: '24px',
                 cursor: 'pointer',
-                color: highContrast ? '#fff' : '#999'
+                color: highContrast ? '#ffffff' : '#999999',
+                fontWeight: 'bold'
               }}
             >
               ✕
@@ -129,16 +102,18 @@ export default function AccessibilityWidget() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                padding: '10px',
-                background: highContrast ? '#333' : '#f0f0f0',
-                border: highContrast ? '1px solid #fff' : 'none',
+                padding: '12px',
+                background: highContrast ? '#333333' : '#f5f5f5',
+                border: highContrast ? '2px solid #ffffff' : '1px solid #e0e0e0',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                color: highContrast ? '#fff' : '#333'
+                color: highContrast ? '#ffffff' : '#333333',
+                fontWeight: highContrast ? 'bold' : 'normal'
               }}
             >
-              <span style={{ fontSize: '20px' }}>🌓</span>
-              <span>Высокая контрастность {highContrast ? '✓' : ''}</span>
+              <span style={{ fontSize: '24px' }}>🌓</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>Высокая контрастность</span>
+              {highContrast && <span style={{ color: '#4caf50', fontWeight: 'bold' }}>✓</span>}
             </button>
 
             <button
@@ -148,16 +123,18 @@ export default function AccessibilityWidget() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                padding: '10px',
-                background: largeText ? '#333' : '#f0f0f0',
-                border: highContrast ? '1px solid #fff' : 'none',
+                padding: '12px',
+                background: largeText ? '#333333' : '#f5f5f5',
+                border: highContrast ? '2px solid #ffffff' : '1px solid #e0e0e0',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                color: highContrast ? '#fff' : '#333'
+                color: highContrast ? '#ffffff' : '#333333',
+                fontWeight: largeText ? 'bold' : 'normal'
               }}
             >
-              <span style={{ fontSize: '20px' }}>🔤</span>
-              <span>Крупный шрифт {largeText ? '✓' : ''}</span>
+              <span style={{ fontSize: '24px' }}>🔤</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>Крупный шрифт</span>
+              {largeText && <span style={{ color: '#4caf50', fontWeight: 'bold' }}>✓</span>}
             </button>
 
             <button
@@ -167,29 +144,31 @@ export default function AccessibilityWidget() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                padding: '10px',
-                background: reduceMotion ? '#333' : '#f0f0f0',
-                border: highContrast ? '1px solid #fff' : 'none',
+                padding: '12px',
+                background: reduceMotion ? '#333333' : '#f5f5f5',
+                border: highContrast ? '2px solid #ffffff' : '1px solid #e0e0e0',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                color: highContrast ? '#fff' : '#333'
+                color: highContrast ? '#ffffff' : '#333333',
+                fontWeight: reduceMotion ? 'bold' : 'normal'
               }}
             >
-              <span style={{ fontSize: '20px' }}>🎬</span>
-              <span>Отключить анимации {reduceMotion ? '✓' : ''}</span>
+              <span style={{ fontSize: '24px' }}>🎬</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>Отключить анимации</span>
+              {reduceMotion && <span style={{ color: '#4caf50', fontWeight: 'bold' }}>✓</span>}
             </button>
           </div>
 
           <div style={{ 
             marginTop: '16px', 
             paddingTop: '12px', 
-            borderTop: highContrast ? '1px solid #fff' : '1px solid #eee',
+            borderTop: highContrast ? '1px solid #ffffff' : '1px solid #e0e0e0',
             fontSize: '12px',
-            color: highContrast ? '#ccc' : '#666'
+            color: highContrast ? '#cccccc' : '#666666'
           }}>
             <p style={{ margin: 0 }}>
-              ♿ Клавиатура: Tab, Shift+Tab, Enter<br/>
-              Escape — закрыть это окно
+              ⌨️ Клавиатура: Tab, Shift+Tab, Enter<br/>
+              ⎋ Escape — закрыть это окно
             </p>
           </div>
         </div>

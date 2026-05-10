@@ -1,9 +1,13 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchUserOrders } from '../store/slices/ordersSlice';
+import { fetchUserOrders, cancelOrder } from '../store/slices/ordersSlice';
 import { fetchUserRequests } from '../store/slices/atelierSlice';
 import { fetchFavorites } from '../store/slices/favoritesSlice';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 export default function ProfilePage() {
   const dispatch = useDispatch();
@@ -13,6 +17,7 @@ export default function ProfilePage() {
   const { items: favorites } = useSelector(state => state.favorites);
   
   const [activeTab, setActiveTab] = React.useState('orders');
+  const [cancellingId, setCancellingId] = React.useState(null);
 
   useEffect(() => {
     if (user) {
@@ -22,7 +27,7 @@ export default function ProfilePage() {
     }
   }, [dispatch, user]);
 
-  // Обновляем данные каждые 10 секунд (чтобы видеть изменения статусов)
+  // Обновляем данные каждые 10 секунд
   useEffect(() => {
     if (!user) return;
     const interval = setInterval(() => {
@@ -32,6 +37,16 @@ export default function ProfilePage() {
     return () => clearInterval(interval);
   }, [dispatch, user]);
 
+  const handleCancelOrder = async (orderId) => {
+    if (window.confirm('Вы уверены, что хотите отменить этот заказ?')) {
+      setCancellingId(orderId);
+      await dispatch(cancelOrder(orderId));
+      await dispatch(fetchUserOrders());
+      setCancellingId(null);
+      alert('Заказ отменен. Уведомление отправлено администратору.');
+    }
+  };
+
   if (!user) {
     return (
       <div style={{ textAlign: 'center', padding: '100px 20px', minHeight: '100vh' }}>
@@ -40,7 +55,7 @@ export default function ProfilePage() {
           display: 'inline-block',
           marginTop: '20px',
           padding: '12px 24px',
-          background: '#d94a2c',
+          background: '#c41e3a',
           color: 'white',
           textDecoration: 'none',
           borderRadius: '8px'
@@ -62,11 +77,11 @@ export default function ProfilePage() {
 
   const getStatusText = (status) => {
     const texts = {
-      'новый': '🆕 Новый',
-      'в обработке': '⚙️ В обработке',
-      'отправлен': '📦 Отправлен',
-      'доставлен': '✅ Доставлен',
-      'отменен': '❌ Отменен'
+      'новый': 'Новый',
+      'в обработке': 'В обработке',
+      'отправлен': 'Отправлен',
+      'доставлен': 'Доставлен',
+      'отменен': 'Отменен'
     };
     return texts[status] || status;
   };
@@ -83,10 +98,10 @@ export default function ProfilePage() {
 
   const getRequestStatusText = (status) => {
     const texts = {
-      'новая': '🆕 Новая',
-      'в работе': '⚙️ В работе',
-      'выполнена': '✅ Выполнена',
-      'отменена': '❌ Отменена'
+      'новая': 'Новая',
+      'в работе': 'В работе',
+      'выполнена': 'Выполнена',
+      'отменена': 'Отменена'
     };
     return texts[status] || status;
   };
@@ -151,10 +166,13 @@ export default function ProfilePage() {
               fontSize: '16px',
               fontWeight: activeTab === 'orders' ? 'bold' : 'normal',
               color: activeTab === 'orders' ? '#c41e3a' : '#666',
-              borderBottom: activeTab === 'orders' ? '2px solid #c41e3a' : 'none'
+              borderBottom: activeTab === 'orders' ? '2px solid #c41e3a' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}
           >
-            📦 Мои заказы ({orders?.length || 0})
+            <ShoppingBagIcon /> Мои заказы ({orders?.length || 0})
           </button>
           <button
             onClick={() => setActiveTab('favorites')}
@@ -166,10 +184,13 @@ export default function ProfilePage() {
               fontSize: '16px',
               fontWeight: activeTab === 'favorites' ? 'bold' : 'normal',
               color: activeTab === 'favorites' ? '#c41e3a' : '#666',
-              borderBottom: activeTab === 'favorites' ? '2px solid #c41e3a' : 'none'
+              borderBottom: activeTab === 'favorites' ? '2px solid #c41e3a' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}
           >
-            ❤️ Избранное ({favorites?.length || 0})
+            <FavoriteIcon /> Избранное ({favorites?.length || 0})
           </button>
           <button
             onClick={() => setActiveTab('requests')}
@@ -181,10 +202,13 @@ export default function ProfilePage() {
               fontSize: '16px',
               fontWeight: activeTab === 'requests' ? 'bold' : 'normal',
               color: activeTab === 'requests' ? '#c41e3a' : '#666',
-              borderBottom: activeTab === 'requests' ? '2px solid #c41e3a' : 'none'
+              borderBottom: activeTab === 'requests' ? '2px solid #c41e3a' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}
           >
-            ✉️ Мои заявки ({requests?.length || 0})
+            <RequestQuoteIcon /> Мои заявки ({requests?.length || 0})
           </button>
         </div>
 
@@ -224,6 +248,37 @@ export default function ProfilePage() {
                     <p><strong>Адрес доставки:</strong> {order.delivery_address || 'Не указан'}</p>
                     <p><strong>Телефон:</strong> {order.phone || 'Не указан'}</p>
                     {order.notes && <p><strong>Примечание:</strong> {order.notes}</p>}
+                    
+                    {/* Кнопка отмены заказа (только если статус не отменен и не доставлен) */}
+                    {order.status !== 'отменен' && order.status !== 'доставлен' && (
+                      <button
+                        onClick={() => handleCancelOrder(order.id)}
+                        disabled={cancellingId === order.id}
+                        style={{
+                          marginTop: '15px',
+                          padding: '8px 16px',
+                          background: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: cancellingId === order.id ? 'not-allowed' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          fontSize: '14px'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!cancellingId) e.target.style.background = '#bb2d3b';
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!cancellingId) e.target.style.background = '#dc3545';
+                        }}
+                      >
+                        <CancelIcon style={{ fontSize: '16px' }} />
+                        {cancellingId === order.id ? 'Отмена...' : 'Отменить заказ'}
+                      </button>
+                    )}
+                    
                     <details style={{ marginTop: '10px' }}>
                       <summary style={{ cursor: 'pointer', color: '#c41e3a' }}>Состав заказа</summary>
                       <div style={{ marginTop: '10px', paddingLeft: '20px' }}>
@@ -320,9 +375,9 @@ export default function ProfilePage() {
                       </span>
                     </div>
                     <p><strong>Тип услуги:</strong> {
-                      request.service_type === 'ремонт' ? '🔧 Ремонт' : 
-                      request.service_type === 'пошив' ? '✂️ Пошив' : 
-                      '📏 Подгонка'
+                      request.service_type === 'ремонт' ? 'Ремонт' : 
+                      request.service_type === 'пошив' ? 'Пошив' : 
+                      'Подгонка'
                     }</p>
                     <p><strong>Описание:</strong> {request.description}</p>
                     <p><strong>Контактный телефон:</strong> {request.contact_phone}</p>
@@ -337,7 +392,7 @@ export default function ProfilePage() {
                         borderRadius: '8px',
                         fontSize: '14px'
                       }}>
-                        <strong>💬 Комментарий администратора:</strong> {request.admin_notes}
+                        <strong>Комментарий администратора:</strong> {request.admin_notes}
                       </div>
                     )}
                   </div>

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const API = 'http://localhost:8080/api';
 
@@ -26,6 +29,7 @@ export default function AdminEditProductPage() {
     category_id: ''
   });
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [currentImage, setCurrentImage] = useState(null);
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState(null);
@@ -84,47 +88,60 @@ export default function AdminEditProductPage() {
       ...form,
       [e.target.name]: e.target.value
     });
+    if (error) setError(null);
   };
 
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
-      setImage(e.target.files[0]);
+      const file = e.target.files[0];
+      setImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setSaving(true);
-  setError(null);
-  setSuccess(null);
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
 
-  const data = new FormData();
-  data.append('name', form.name || '');
-  data.append('description', form.description || '');
-  data.append('price', form.price || '0');
-  data.append('size', form.size || '');
-  data.append('color', form.color || '');
-  data.append('material', form.material || '');
-  // Важно: отправляем 0 вместо пустой строки
-  data.append('stock_quantity', form.stock_quantity === '' ? '0' : form.stock_quantity);
-  data.append('category_id', form.category_id === '' ? '' : form.category_id);
-  if (image) data.append('image', image);
+    // Валидация цены
+    if (form.price && parseFloat(form.price) <= 100) {
+      setError('Цена товара должна быть больше 100 ₽');
+      setSaving(false);
+      return;
+    }
 
-  try {
-    await axios.put(`${API}/products/${id}`, data, {
-      headers: {
-        'x-access-token': token,
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    setSuccess('Товар успешно обновлен!');
-    setTimeout(() => navigate('/admin/products'), 1500);
-  } catch (err) {
-    setError(err.response?.data?.error || 'Ошибка при обновлении товара');
-  } finally {
-    setSaving(false);
-  }
-};
+    const data = new FormData();
+    data.append('name', form.name || '');
+    data.append('description', form.description || '');
+    data.append('price', form.price || '0');
+    data.append('size', form.size || '');
+    data.append('color', form.color || '');
+    data.append('material', form.material || '');
+    data.append('stock_quantity', form.stock_quantity === '' ? '0' : form.stock_quantity);
+    data.append('category_id', form.category_id === '' ? '' : form.category_id);
+    if (image) data.append('image', image);
+
+    try {
+      await axios.put(`${API}/products/${id}`, data, {
+        headers: {
+          'x-access-token': token,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      setSuccess('Товар успешно обновлен!');
+      setTimeout(() => navigate('/admin/products'), 1500);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Ошибка при обновлении товара');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -159,7 +176,7 @@ export default function AdminEditProductPage() {
           style={{
             marginTop: '20px',
             padding: '10px 24px',
-            background: '#c41e3a',
+            background: '#1a1a1a',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
@@ -193,30 +210,56 @@ export default function AdminEditProductPage() {
           flexWrap: 'wrap',
           gap: '15px'
         }}>
-          <h1 style={{
-            color: '#1a1a1a',
-            fontSize: '1.8rem',
-            borderLeft: '4px solid #c41e3a',
-            paddingLeft: '15px',
-            margin: 0
-          }}>
-            Редактирование товара
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button
+              onClick={() => navigate('/admin/products')}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                marginRight: '15px',
+                display: 'flex',
+                alignItems: 'center',
+                color: '#666'
+              }}
+            >
+              <ArrowBackIcon />
+            </button>
+            <h1 style={{
+              color: '#1a1a1a',
+              fontSize: '1.8rem',
+              borderLeft: '4px solid #c41e3a',
+              paddingLeft: '15px',
+              margin: 0
+            }}>
+              Редактирование товара
+            </h1>
+          </div>
           <button
             onClick={() => setShowDeleteConfirm(true)}
             style={{
               padding: '10px 20px',
-              background: '#dc3545',
-              color: 'white',
-              border: 'none',
+              background: '#fff',
+              color: '#c41e3a',
+              border: '1px solid #c41e3a',
               borderRadius: '8px',
               cursor: 'pointer',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              transition: 'all 0.3s'
             }}
-            onMouseEnter={(e) => e.target.style.background = '#bb2d3b'}
-            onMouseLeave={(e) => e.target.style.background = '#dc3545'}
+            onMouseEnter={(e) => {
+              e.target.style.background = '#c41e3a';
+              e.target.style.color = 'white';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = '#fff';
+              e.target.style.color = '#c41e3a';
+            }}
           >
-            🗑️ Удалить товар
+            <DeleteIcon /> Удалить товар
           </button>
         </div>
 
@@ -240,7 +283,7 @@ export default function AdminEditProductPage() {
               onClick={() => navigate('/admin/products')}
               style={{
                 padding: '10px 24px',
-                background: '#c41e3a',
+                background: '#1a1a1a',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -318,7 +361,7 @@ export default function AdminEditProductPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: '500' }}>
-                  Цена * (₽)
+                  Цена * (₽) (больше 100)
                 </label>
                 <input
                   type="number"
@@ -327,7 +370,7 @@ export default function AdminEditProductPage() {
                   onChange={handleChange}
                   required
                   step="0.01"
-                  min="0"
+                  min="101"
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -449,6 +492,20 @@ export default function AdminEditProductPage() {
                   border: '1px solid #ddd'
                 }}
               />
+              {imagePreview && (
+                <div style={{ marginTop: '10px' }}>
+                  <img
+                    src={imagePreview}
+                    alt="Предпросмотр"
+                    style={{
+                      maxWidth: '150px',
+                      maxHeight: '150px',
+                      objectFit: 'cover',
+                      borderRadius: '8px'
+                    }}
+                  />
+                </div>
+              )}
               <small style={{ color: '#888', display: 'block', marginTop: '5px' }}>
                 Поддерживаемые форматы: JPEG, PNG, GIF. Максимум 5MB
               </small>
@@ -461,16 +518,23 @@ export default function AdminEditProductPage() {
                 style={{
                   flex: 1,
                   padding: '12px',
-                  background: '#6c757d',
-                  color: 'white',
-                  border: 'none',
+                  background: '#f5f5f5',
+                  color: '#333',
+                  border: '1px solid #ddd',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: 'bold',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
                 }}
-                onMouseEnter={(e) => e.target.style.background = '#5a6268'}
-                onMouseLeave={(e) => e.target.style.background = '#6c757d'}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#e0e0e0';
+                  e.target.style.borderColor = '#c41e3a';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#f5f5f5';
+                  e.target.style.borderColor = '#ddd';
+                }}
               >
                 Отмена
               </button>
@@ -480,22 +544,27 @@ export default function AdminEditProductPage() {
                 style={{
                   flex: 1,
                   padding: '12px',
-                  background: '#c41e3a',
+                  background: '#1a1a1a',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: 'bold',
-                  cursor: saving ? 'not-allowed' : 'pointer'
+                  cursor: saving ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
                 }}
                 onMouseEnter={(e) => {
-                  if (!saving) e.target.style.background = '#a01830';
-                }}
-                onMouseLeave={(e) => {
                   if (!saving) e.target.style.background = '#c41e3a';
                 }}
+                onMouseLeave={(e) => {
+                  if (!saving) e.target.style.background = '#1a1a1a';
+                }}
               >
-                {saving ? 'Сохранение...' : 'Сохранить изменения'}
+                {saving ? 'Сохранение...' : <><SaveIcon /> Сохранить изменения</>}
               </button>
             </div>
           </form>
@@ -524,7 +593,7 @@ export default function AdminEditProductPage() {
             width: '90%',
             textAlign: 'center'
           }}>
-            <h3 style={{ marginBottom: '15px', color: '#dc3545' }}>Подтверждение удаления</h3>
+            <h3 style={{ marginBottom: '15px', color: '#c41e3a' }}>Подтверждение удаления</h3>
             <p style={{ marginBottom: '25px', color: '#666' }}>
               Вы уверены, что хотите удалить товар <strong>"{form.name}"</strong>?<br />
               Это действие нельзя отменить.
@@ -535,9 +604,9 @@ export default function AdminEditProductPage() {
                 style={{
                   flex: 1,
                   padding: '10px',
-                  background: '#6c757d',
-                  color: 'white',
-                  border: 'none',
+                  background: '#f5f5f5',
+                  color: '#333',
+                  border: '1px solid #ddd',
                   borderRadius: '8px',
                   cursor: 'pointer'
                 }}
@@ -550,7 +619,7 @@ export default function AdminEditProductPage() {
                 style={{
                   flex: 1,
                   padding: '10px',
-                  background: '#dc3545',
+                  background: '#c41e3a',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',

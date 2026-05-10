@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import DescriptionIcon from '@mui/icons-material/Description';
+import PhoneIcon from '@mui/icons-material/Phone';
 
 const API = 'http://localhost:8080/api';  
 
@@ -14,6 +17,7 @@ export default function AtelierRequestPage() {
     contact_phone: ''
   });
   const [photo, setPhoto] = useState(null);
+  const [photoError, setPhotoError] = useState('');
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem('token');
 
@@ -25,7 +29,7 @@ export default function AtelierRequestPage() {
           display: 'inline-block',
           marginTop: '20px',
           padding: '12px 24px',
-          background: '#d94a2c',
+          background: '#c41e3a',
           color: 'white',
           textDecoration: 'none',
           borderRadius: '8px'
@@ -37,14 +41,24 @@ export default function AtelierRequestPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!form.description) {
-      alert('Заполните описание услуги');
+    // ВАЛИДАЦИЯ: описание обязательно
+    if (!form.description || form.description.trim() === '') {
+      alert('Пожалуйста, заполните описание услуги');
       return;
     }
-    if (!form.contact_phone) {
+    
+    // ВАЛИДАЦИЯ: телефон обязателен
+    if (!form.contact_phone || form.contact_phone.trim() === '') {
       alert('Укажите контактный телефон');
       return;
     }
+    
+    // ВАЛИДАЦИЯ: фото обязательно
+    if (!photo) {
+      setPhotoError('Пожалуйста, прикрепите фотографию для оценки');
+      return;
+    }
+    setPhotoError('');
 
     setLoading(true);
     const formData = new FormData();
@@ -83,10 +97,10 @@ export default function AtelierRequestPage() {
         boxShadow: '0 8px 20px rgba(0,0,0,0.1)'
       }}>
         <h1 style={{
-          color: '#1a4b6d',
+          color: '#1a1a1a',
           fontSize: '1.8rem',
           marginBottom: '10px',
-          borderBottom: '2px solid #d94a2c',
+          borderBottom: '2px solid #c41e3a',
           paddingBottom: '10px'
         }}>
           Заявка в ателье
@@ -98,7 +112,7 @@ export default function AtelierRequestPage() {
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', color: '#333', marginBottom: '8px', fontWeight: '500' }}>
-              Тип услуги *
+              Тип услуги
             </label>
             <select
               value={form.service_type}
@@ -119,6 +133,7 @@ export default function AtelierRequestPage() {
 
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', color: '#333', marginBottom: '8px', fontWeight: '500' }}>
+              <DescriptionIcon style={{ fontSize: '16px', verticalAlign: 'middle', marginRight: '5px' }} />
               Описание услуги *
             </label>
             <textarea
@@ -140,19 +155,27 @@ export default function AtelierRequestPage() {
 
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', color: '#333', marginBottom: '8px', fontWeight: '500' }}>
-              Фото (для оценки)
+              <PhotoCameraIcon style={{ fontSize: '16px', verticalAlign: 'middle', marginRight: '5px' }} />
+              Фото (обязательно для оценки) *
             </label>
             <input
               type="file"
-              onChange={e => setPhoto(e.target.files[0])}
+              onChange={e => {
+                setPhoto(e.target.files[0]);
+                setPhotoError('');
+              }}
               accept="image/*"
+              required
               style={{
                 width: '100%',
                 padding: '10px',
                 borderRadius: '8px',
-                border: '1px solid #ddd'
+                border: photoError ? '2px solid #dc3545' : '1px solid #ddd'
               }}
             />
+            {photoError && (
+              <p style={{ color: '#dc3545', fontSize: '12px', marginTop: '5px' }}>{photoError}</p>
+            )}
             <small style={{ color: '#888', display: 'block', marginTop: '5px' }}>
               Загрузите фото для более точной оценки (максимум 5 МБ)
             </small>
@@ -160,6 +183,7 @@ export default function AtelierRequestPage() {
 
           <div style={{ marginBottom: '30px' }}>
             <label style={{ display: 'block', color: '#333', marginBottom: '8px', fontWeight: '500' }}>
+              <PhoneIcon style={{ fontSize: '16px', verticalAlign: 'middle', marginRight: '5px' }} />
               Контактный телефон *
             </label>
             <input
@@ -184,13 +208,20 @@ export default function AtelierRequestPage() {
             style={{
               width: '100%',
               padding: '14px',
-              background: '#d94a2c',
+              background: '#c41e3a',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               fontSize: '16px',
               fontWeight: 'bold',
-              cursor: 'pointer'
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s'
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) e.target.style.background = '#a01830';
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) e.target.style.background = '#c41e3a';
             }}
           >
             {loading ? 'Отправка...' : 'Отправить заявку'}
